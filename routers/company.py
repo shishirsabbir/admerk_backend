@@ -22,7 +22,7 @@ async def get_all_jobs_by_company(account: account_dependency, db: db_dependency
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
     if len(db.query(Job).filter(Job.company == account.get('username')).all()) < 1:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You haven't posted any jobs to us")
+        return None
     
     return [get_job_data_for_company(job_model.id, db_session=db) for job_model in db.query(Job).filter(Job.company == account.get('username')).order_by(desc(Job.posted_on)).all()]
 
@@ -74,7 +74,7 @@ async def get_all_application(account: account_dependency, db: db_dependency):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
     if len(company_job_name_id_list) < 1:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='No application found on your posted jobs')
+        return None
     
     return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in company_job_name_id_list]
 

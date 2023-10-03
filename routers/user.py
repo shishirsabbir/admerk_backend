@@ -33,7 +33,7 @@ async def get_all_application(account: account_dependency, db: db_dependency):
     application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
 
     if len(application_list) < 1:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="You haven't applied for any jobs")
+        return None
     
     application_id_list_desc = [application_model.application_id for application_model in db.query(Application).filter(Application.user_acc == account.get('username')).order_by(desc(Application.applied_on)).all()]
     
