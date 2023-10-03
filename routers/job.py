@@ -17,7 +17,7 @@ router = APIRouter(
 async def get_all_jobs(db: db_dependency):
 
     if not db.query(Job).all():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No jobs found")
+        return None
     
     job_id_list_desc = [job.id for job in db.query(Job).order_by(desc(Job.posted_on)).all()]
     
@@ -29,6 +29,6 @@ async def get_job(db: db_dependency, job_id: int = Path(gt=0)):
     job_model = get_job_data(job_id, db)
 
     if not job_model:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        return None
     
     return job_model
