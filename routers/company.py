@@ -73,10 +73,12 @@ async def get_all_application(account: account_dependency, db: db_dependency):
     if account.get('role') != 'company':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
-    if len(company_job_name_id_list) < 1:
-        return []
+    if len(company_job_name_id_list) == 0:
+        return None
     
-    return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in company_job_name_id_list]
+    
+    return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in company_job_name_id_list if get_appliation_data_by_job_name_id(job_name_id, db) != None]
+    
 
     # return [db.query(Application).filter(Application.job_id == job_name_id).order_by(desc(Application.applied_on)).first() for job_name_id in company_job_name_id_list]
 

@@ -218,10 +218,14 @@ def get_appliation_data(apply_id, db_session):
 def get_appliation_data_by_job_name_id(job_name_id, db_session):
     application_model = db_session.query(Application).filter(Application.job_id == job_name_id).first()
 
-    return {
-        "id": application_model.id,
-        "application_id": application_model.application_id,
-        "user_info": get_user_data(application_model.user_acc, db_session),
-        "job_info": get_job_data_by_name_id(application_model.job_id, db_session),
-        "applied_on": application_model.applied_on
-    }
+    if application_model:
+        return {
+            "id": application_model.id,
+            "application_id": application_model.application_id,
+            "user_info": get_user_data(application_model.user_acc, db_session),
+            "job_info": get_job_data_by_name_id(application_model.job_id, db_session),
+            "applied_on": application_model.applied_on
+        }
+    
+    else:
+        return None
