@@ -83,7 +83,7 @@ app = FastAPI(
 
 # CORS ADDED FOR LOCAL CONNECTION OF CLIENT
 origins = [
-    "http://localhost:5173",
+    "*",
 ]
 
 app.add_middleware(
