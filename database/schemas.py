@@ -30,7 +30,7 @@ class UserModel(BaseModel):
     birth_date: datetime = Field(default=datetime(year=1996, month=5, day=8))
     email: str = Field(max_length=30)
     location: LocationModel | None = None
-    username: str = Field(max_length=15)
+    username: str = Field(max_length=30)
     password: str = Field(min_length=8)
     is_refugee: bool = Field(default=False)
     role: str = Field(default="user")
@@ -121,7 +121,7 @@ class ChangePasswordRequest(BaseModel):
 
 # PYDANTIC CLASS FOR LOGIN ACCOUNT MODEL
 class AccountModel(BaseModel):
-    login_name: str = Field(max_length=15)
+    login_name: str = Field(max_length=30)
     login_email: str = Field(max_length=30)
     hashed_password: str
     role: Literal["user", "company", "developer", "admin"]
@@ -144,7 +144,7 @@ class ValidateRequest(BaseModel):
 
 # PYDANTIC CLASS FOR JOB MODEL
 class JobModel(BaseModel):
-    # name_id: str = Field(max_length=30)
+    # name_id: str = Field(max_length=50)
     job_title: str = Field(max_length=500)
     # company: str = Field(max_length=30)
     job_type: Literal["fixed_price", "full_time", "part_time", "freelance"]
@@ -212,13 +212,13 @@ class JobResponseModel(BaseModel):
 # PYDANTIC CLASS FOR JOB APPLICATION
 class ApplicationModel(BaseModel):
     # application_id: str = Field(max_length=15)
-    job_id: str = Field(max_length=30)
+    job_id: str = Field(max_length=50)
     
     model_config= {
         "json_schema_extra": {
             "examples": [
                 {
-                    "job_id": "enter the job name id"
+                    "job_id": "enter_the_job_name_id"
                 }
             ]
         }
@@ -227,7 +227,7 @@ class ApplicationModel(BaseModel):
 
 # PYDANTIC CLASS FOR CREATE ACCOUNT MODEL
 class AccountModelCreate(BaseModel):
-    login_name: str = Field(max_length=15)
+    login_name: str = Field(max_length=30)
     login_email: str = Field(max_length=30)
     password: str
     role: Literal["user", "company", "developer", "admin"]

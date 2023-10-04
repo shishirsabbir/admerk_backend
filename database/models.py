@@ -46,8 +46,8 @@ class User(Base):
     last_name = Column(String(20), nullable=True)
     birth_date = Column(DateTime, nullable=False)
     email = Column(String(30), unique=True, index=True, nullable=False)
-    location = Column(String(15), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
-    username = Column(String(15), unique=True, index=True, nullable=False)
+    location = Column(String(30), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
+    username = Column(String(30), unique=True, index=True, nullable=False)
     is_refugee = Column(Boolean, default=False, nullable=False)
 
     sec_loc = relationship('Location', back_populates='loc_user')
@@ -63,7 +63,7 @@ class Company(Base):
     c_name = Column(String(30), unique=True, nullable=False, index=True)
     c_mail = Column(String(30), unique=True, nullable=False, index=True)
     social = Column(String(30), ForeignKey('socials.data_id', ondelete='SET NULL'), nullable=True)
-    location = Column(String(15), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
+    location = Column(String(30), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
     website = Column(String(100), nullable=True)
 
     job = relationship('Job', back_populates='owner')
@@ -76,12 +76,12 @@ class Job(Base):
     __tablename__ = 'jobs'
 
     id = Column(Integer, primary_key=True, index=True)
-    name_id = Column(String(30), unique=True, nullable=False)
+    name_id = Column(String(50), unique=True, nullable=False)
     job_title = Column(String(500), nullable=False)
     company = Column(String(30), ForeignKey('companies.c_name'))
     job_type = Column(Enum("fixed_price", "full_time", "part_time", "freelance", name="job type"))
     posted_on = Column(DateTime, server_default=func.now())
-    location = Column(String(15), ForeignKey('locations.data_id'))
+    location = Column(String(30), ForeignKey('locations.data_id'))
     salary_amount = Column(Float(precision=2))
     salary_duration = Column(Enum("weekly", "monthly", "hourly", name="salary type"))
     category = Column(Enum("accounting", "administration", "advertising", "agriculture", "arts and design", "banking", "biotechnology", "business development", "consulting", "customer service", "education", "engineering", "finance", "healthcare", "human resource", "information technology", "legal", "manufacturing", "marketing", "media and communication", "nonprofit", "retail", "sales", "science", "sports and recreation", "telecommunications", "transportation and logistics", "travel and tourism", "utilities", name="job category"))
@@ -104,7 +104,7 @@ class Account(Base):
     __tablename__ = 'accounts'
 
     id = Column(Integer, primary_key=True, index=True)
-    login_name = Column(String(15), unique=True, nullable=False, index=True)
+    login_name = Column(String(30), unique=True, nullable=False, index=True)
     login_email = Column(String(30), unique=True, nullable=False, index=True)
     hashed_password = Column(String(100), nullable=False)
     role = Column(Enum("user", "company", "developer", "admin", name="account role"), nullable=False)
@@ -116,8 +116,8 @@ class Application(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     application_id = Column(String(30), unique=True, nullable=False, index=True)
-    user_acc = Column(String(15), ForeignKey('users.username'))
-    job_id = Column(String(15), ForeignKey('jobs.name_id'))
+    user_acc = Column(String(30), ForeignKey('users.username'))
+    job_id = Column(String(50), ForeignKey('jobs.name_id'))
     applied_on = Column(DateTime, server_default=func.now())
 
     applicant = relationship('User', back_populates='apply_to')
