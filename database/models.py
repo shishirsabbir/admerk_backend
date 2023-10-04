@@ -46,7 +46,7 @@ class User(Base):
     last_name = Column(String(20), nullable=True)
     birth_date = Column(DateTime, nullable=False)
     email = Column(String(30), unique=True, index=True, nullable=False)
-    location = Column(String(15), ForeignKey('locations.data_id'), nullable=True)
+    location = Column(String(15), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
     username = Column(String(15), unique=True, index=True, nullable=False)
     is_refugee = Column(Boolean, default=False, nullable=False)
 
@@ -62,8 +62,8 @@ class Company(Base):
     name = Column(String(30), nullable=False)
     c_name = Column(String(30), unique=True, nullable=False, index=True)
     c_mail = Column(String(30), unique=True, nullable=False, index=True)
-    social = Column(Integer, ForeignKey('socials.data_id'), nullable=True)
-    location = Column(String(15), ForeignKey('locations.data_id'), nullable=True)
+    social = Column(String(30), ForeignKey('socials.data_id', ondelete='SET NULL'), nullable=True)
+    location = Column(String(15), ForeignKey('locations.data_id', ondelete='SET NULL'), nullable=True)
     website = Column(String(100), nullable=True)
 
     job = relationship('Job', back_populates='owner')

@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from security.auth import account_dependency, hash_password, verify_password
 from database.crud import db_dependency, generate_job_name_id, get_location, get_social, get_job_name_id_list, get_job_data_for_company, get_appliation_data_by_job_name_id
 from database.schemas import ChangePasswordRequest, JobModel
-from database.models import Account, Company, Job, Location
+from database.models import Account, Company, Job, Location, Application
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -68,20 +68,21 @@ async def create_new_job(account: account_dependency, db: db_dependency, create_
 
 @router.get('/application', status_code=status.HTTP_200_OK)
 async def get_all_application(account: account_dependency, db: db_dependency):
-    company_job_name_id_list = get_job_name_id_list(account.get('username'), db)
-
+    
     if account.get('role') != 'company':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
-    if len(company_job_name_id_list) == 0:
+    job_name_list = [job.name_id for job in db.query(Job).filter(Job.company == account.get('username')).all()]
+
+    if len(job_name_list) == 0:
         return None
     
+    application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
+    if len(application_list) == 0:
+        return None
+        
+    return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in job_name_list]
     
-    return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in company_job_name_id_list if get_appliation_data_by_job_name_id(job_name_id, db) != None]
-    
-
-    # return [db.query(Application).filter(Application.job_id == job_name_id).order_by(desc(Application.applied_on)).first() for job_name_id in company_job_name_id_list]
-
 
 @router.put('/password', status_code=status.HTTP_204_NO_CONTENT)
 async def change_password(account: account_dependency, db: db_dependency, change_password_requst: ChangePasswordRequest):

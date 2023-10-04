@@ -30,12 +30,12 @@ async def apply_to_job(account: account_dependency, db: db_dependency, applicati
 
 @router.get('/application', status_code=status.HTTP_200_OK)
 async def get_all_application(account: account_dependency, db: db_dependency):
-    application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
 
     if account.get('role') != 'user':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
-    if len(application_list) < 1:
+    application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
+    if len(application_list) == 0:
         return None
     
     application_id_list_desc = [application_model.application_id for application_model in db.query(Application).filter(Application.user_acc == account.get('username')).order_by(desc(Application.applied_on)).all()]
