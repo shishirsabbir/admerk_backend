@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # SQL_DATABASE_URL = "postgresql+psycopg2://postgres:shishir0077@localhost:5432/JobForGlobeDB"
 
 # DATABASE URL (FOR MYSQL)
-SQL_DATABASE_URL = "mysql+mysqlconnector://admerk:shishir0077@localhost:3306/AdmerkCorpDB"
+SQL_DATABASE_URL = "mysql+mysqlconnector://admerk:1234qwer@localhost:3306/AdmerkCorpDB"
 
 
 # CREATING ENGINE FOR THE DATABASE (FOR SQLITE)
