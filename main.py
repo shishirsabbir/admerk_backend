@@ -77,7 +77,8 @@ app = FastAPI(
     license_info = {
         "name": "MIT License",
         "url": "https://github.com/shishirsabbir/admerkcorp_api/blob/main/LICENSE"
-    }
+    },
+    root_path='/api/v2/'
 )
 
 
@@ -124,4 +125,4 @@ app.include_router(auth.router, tags=['Authentication'])
 app.include_router(user.router, tags=['User'])
 app.include_router(company.router, tags=['Company'])
 app.include_router(job.router, tags=['Job'])
-# app.include_router(admin.router, tags=['Admin'])
+app.include_router(admin.router, tags=['Admin'])

@@ -22,7 +22,7 @@ class Location(Base):
     id = Column(Integer, primary_key=True, index=True)
     # data_id = Column(String(30), unique=True, nullable=False)
     country = Column(countries_list)
-    state = Column(String(20), nullable=True)
+    state = Column(String(30), nullable=True)
     division = Column(String(30), nullable=True)
     city = Column(String(30), nullable=True)
     address = Column(String(100), nullable=True)
@@ -54,16 +54,17 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String(20), nullable=True)
-    last_name = Column(String(20), nullable=True)
+    first_name = Column(String(30), nullable=True)
+    last_name = Column(String(30), nullable=True)
     birth_date = Column(DateTime, nullable=False)
     email = Column(String(30), unique=True, index=True, nullable=False)
-    location = Column(String(30), ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
+    location = Column(Integer, ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
     username = Column(String(30), unique=True, index=True, nullable=False)
     is_refugee = Column(Boolean, default=False, nullable=False)
 
     sec_loc = relationship('Location', back_populates='loc_user')
     apply_to = relationship('Application', back_populates='applicant')
+
 
 
 # COMPANY TABLE
@@ -74,8 +75,8 @@ class Company(Base):
     name = Column(String(30), nullable=False)
     c_name = Column(String(30), unique=True, nullable=False, index=True)
     c_mail = Column(String(30), unique=True, nullable=False, index=True)
-    social = Column(String(30), ForeignKey('socials.id', ondelete='SET NULL'), nullable=True)
-    location = Column(String(30), ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
+    social = Column(Integer, ForeignKey('socials.id', ondelete='SET NULL'), nullable=True)
+    location = Column(Integer, ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
     website = Column(String(100), nullable=True)
 
     job = relationship('Job', back_populates='owner')
@@ -90,10 +91,10 @@ class Job(Base):
     id = Column(Integer, primary_key=True, index=True)
     # name_id = Column(String(50), unique=True, nullable=False)
     job_title = Column(String(500), nullable=False)
-    company = Column(String(30), ForeignKey('companies.c_name'))
+    company = Column(Integer, ForeignKey('companies.id'))
     job_type = Column(Enum("fixed_price", "full_time", "part_time", "freelance", name="job type"))
     posted_on = Column(DateTime, server_default=func.now())
-    location = Column(String(30), ForeignKey('locations.data_id'))
+    location = Column(Integer, ForeignKey('locations.id'))
     salary_amount = Column(Float(precision=2))
     salary_duration = Column(Enum("weekly", "monthly", "hourly", name="salary type"))
     category = Column(Enum(categories_list))
@@ -123,6 +124,15 @@ class Account(Base):
     role = Column(Enum("user", "company", "developer", "admin", name="account role"), nullable=False)
 
 
+# COVER LETTER TABLE
+class Cover(Base):
+    __tablename__ = 'covers'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(300), nullable=False)
+    letter = Column(String(1000), nullable=False)
+
+
 # JOB APPLY TABLE
 class Application(Base):
     __tablename__ = 'applications'
@@ -131,10 +141,8 @@ class Application(Base):
     user_acc = Column(String(30), ForeignKey('users.username'))
     job_id = Column(String(50), ForeignKey('jobs.id'))
     applied_on = Column(DateTime, server_default=func.now())
-    cover_letter = Column(String(2000), nullable=True)
+    cover_letter = Column(Integer, ForeignKey('covers.id'), nullable=True)
 
     applicant = relationship('User', back_populates='apply_to')
     applied_job = relationship('Job', back_populates='application')
 
-
-# APPLICATION LETTER

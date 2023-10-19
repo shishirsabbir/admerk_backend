@@ -102,11 +102,15 @@ async def create_user_account(db: db_dependency, create_user_request: UserModel)
                             detail=f"Email {create_user_request.email} is already in use.")
     
     if create_user_request.location:
-        location_id = f'loc{datetime.now().strftime("%y%m%d%H%M%S")}'
-        location_model = Location(data_id=location_id, **create_user_request.location.model_dump())
+        location_model = Location(**create_user_request.location.model_dump())
         
         db.add(location_model)
         db.commit()
+
+        # get the location_id
+        location_id = db.last_insert_id()
+
+        # 
         db.refresh(location_model)
 
     user_model = User(
@@ -115,7 +119,7 @@ async def create_user_account(db: db_dependency, create_user_request: UserModel)
         username=create_user_request.username,
         email=create_user_request.email,
         birth_date=create_user_request.birth_date,
-        location=location_model.data_id,
+        location=location_id,
         is_refugee=create_user_request.is_refugee
     )
 
