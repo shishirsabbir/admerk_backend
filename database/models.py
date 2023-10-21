@@ -58,12 +58,14 @@ class User(Base):
     last_name = Column(String(30), nullable=True)
     birth_date = Column(DateTime, nullable=False)
     email = Column(String(30), unique=True, index=True, nullable=False)
-    location = Column(Integer, ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
+    location = Column(Integer, ForeignKey('locations.id'), nullable=True)
     username = Column(String(30), unique=True, index=True, nullable=False)
     is_refugee = Column(Boolean, default=False, nullable=False)
 
     sec_loc = relationship('Location', back_populates='loc_user')
     apply_to = relationship('Application', back_populates='applicant')
+
+    # cascade="all, delete-orphan"
 
 
 
@@ -75,42 +77,13 @@ class Company(Base):
     name = Column(String(30), nullable=False)
     c_name = Column(String(30), unique=True, nullable=False, index=True)
     c_mail = Column(String(30), unique=True, nullable=False, index=True)
-    social = Column(Integer, ForeignKey('socials.id', ondelete='SET NULL'), nullable=True)
-    location = Column(Integer, ForeignKey('locations.id', ondelete='SET NULL'), nullable=True)
+    social = Column(Integer, ForeignKey('socials.id'), nullable=True)
+    location = Column(Integer, ForeignKey('locations.id'), nullable=True)
     website = Column(String(100), nullable=True)
 
     job = relationship('Job', back_populates='owner')
     sec_loc = relationship('Location', back_populates='loc_company')
     sec_social = relationship('Social', back_populates='soc_company')
-
-
-# JOB TABLE
-class Job(Base):
-    __tablename__ = 'jobs'
-
-    id = Column(Integer, primary_key=True, index=True)
-    # name_id = Column(String(50), unique=True, nullable=False)
-    job_title = Column(String(500), nullable=False)
-    company = Column(Integer, ForeignKey('companies.id'))
-    job_type = Column(Enum("fixed_price", "full_time", "part_time", "freelance", name="job type"))
-    posted_on = Column(DateTime, server_default=func.now())
-    location = Column(Integer, ForeignKey('locations.id'))
-    salary_amount = Column(Float(precision=2))
-    salary_duration = Column(Enum("weekly", "monthly", "hourly", name="salary type"))
-    category = Column(Enum(categories_list))
-    sub_category = Column(sub_categories_list)
-    overview = Column(String(1500), nullable=True)
-    job_description = Column(String(3000))
-    experience = Column(Enum("fresher", "no_experience", "expert", "internship", "intermediate", name="experience level"))
-    responsibility = Column(String(2000), nullable=True)
-    required_skills = Column(String(500), nullable=True)
-    benefits = Column(String(1500), nullable=True)
-    job_url = Column(String(100), nullable=True)
-
-    owner = relationship('Company', back_populates='job')
-    sec_loc = relationship('Location', back_populates='loc_job')
-    application = relationship('Application', back_populates='')
-    
 
 
 # ACCOUNT TABLE
@@ -124,13 +97,41 @@ class Account(Base):
     role = Column(Enum("user", "company", "developer", "admin", name="account role"), nullable=False)
 
 
+# JOB TABLE
+class Job(Base):
+    __tablename__ = 'jobs'
+
+    id = Column(Integer, primary_key=True, index=True)
+    # name_id = Column(String(50), unique=True, nullable=False)
+    job_title = Column(String(500), nullable=False)
+    company = Column(String(30), ForeignKey('companies.c_name'))
+    job_type = Column(Enum("fixed_price", "full_time", "part_time", "freelance", name="job type"))
+    posted_on = Column(DateTime, server_default=func.now())
+    location = Column(Integer, ForeignKey('locations.id'))
+    salary_amount = Column(Float(precision=2))
+    salary_duration = Column(Enum("weekly", "monthly", "hourly", name="salary type"))
+    category = Column(categories_list)
+    sub_category = Column(sub_categories_list)
+    overview = Column(String(1500), nullable=True)
+    job_description = Column(String(3000))
+    experience = Column(Enum("fresher", "no_experience", "expert", "internship", "intermediate", name="experience level"))
+    responsibility = Column(String(2000), nullable=True)
+    required_skills = Column(String(500), nullable=True)
+    benefits = Column(String(1500), nullable=True)
+    job_url = Column(String(100), nullable=True)
+
+    owner = relationship('Company', back_populates='job')
+    sec_loc = relationship('Location', back_populates='loc_job')
+    application = relationship('Application', back_populates='applied_job')
+
+
 # COVER LETTER TABLE
 class Cover(Base):
     __tablename__ = 'covers'
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(300), nullable=False)
-    letter = Column(String(1000), nullable=False)
+    description = Column(String(1000), nullable=True)
 
 
 # JOB APPLY TABLE

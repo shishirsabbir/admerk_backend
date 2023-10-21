@@ -24,13 +24,6 @@ async def get_all_jobs(db: db_dependency):
     return [get_job_data_for_dashboard(job_id, db_session=db) for job_id in job_id_list_desc]
 
 
-# @router.get('/category', status_code=status.HTTP_200_OK)
-# async def get_category():
-#     category_list = ["accounting", "administration", "advertising", "agriculture", "arts and design", "banking", "biotechnology", "business development", "consulting", "customer service", "education", "engineering", "finance", "healthcare", "human resource", "information technology", "legal", "manufacturing", "marketing", "media and communication", "nonprofit", "retail", "sales", "science", "sports and recreation", "telecommunications", "transportation and logistics", "travel and tourism", "utilities"]
-    
-#     return category_list
-
-
 @router.get('/{job_id}', status_code=status.HTTP_200_OK)
 async def get_job(db: db_dependency, job_id: int = Path(gt=0)):
     job_model = get_job_data(job_id, db)

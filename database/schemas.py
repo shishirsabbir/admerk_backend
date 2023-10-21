@@ -33,7 +33,7 @@ class UserModel(BaseModel):
     last_name: str | None = Field(max_length=30, default=None)
     birth_date: datetime = Field(default=datetime(year=1996, month=5, day=8))
     email: str = Field(max_length=30)
-    location: LocationModel | None = None
+    location: LocationModel | None
     username: str = Field(max_length=30)
     password: str = Field(min_length=8)
     is_refugee: bool = Field(default=False)
@@ -51,7 +51,9 @@ class UserModel(BaseModel):
                         "country": "bangladesh",
                         "state": "",
                         "division": "rajshahi",
-                        "city": "rajshahi"
+                        "city": "rajshahi",
+                        "address": "",
+                        "zip_code": ""
                     },
                     "username": "arnoliono",
                     "password": "@Test1234",
@@ -68,8 +70,8 @@ class CompanyModel(BaseModel):
     c_name: str = Field(max_length=30)
     c_mail: str = Field(max_length=30)
     password: str = Field(min_length=8)
-    social: SocialModel | None = None
-    location: LocationModel | None = None
+    social: SocialModel | None
+    location: LocationModel | None
     website: str = Field(max_length=100)
     role: str = Field(default='company')
 
@@ -92,7 +94,9 @@ class CompanyModel(BaseModel):
                         "country": "united kingdom",
                         "state": "greater manchester",
                         "division": "",
-                        "city": "manchester"
+                        "city": "manchester",
+                        "address": "",
+                        "zip_code": ""
                     },
                     "website": "https://www.pepsicouk.com"
                 }
@@ -172,7 +176,6 @@ class ValidateRequest(BaseModel):
 
 # PYDANTIC CLASS FOR JOB MODEL
 class JobModel(BaseModel):
-    # name_id: str = Field(max_length=50)
     job_title: str = Field(max_length=500)
     # company: str = Field(max_length=30)
     job_type: Literal["fixed_price", "full_time", "part_time", "freelance"]
@@ -198,7 +201,11 @@ class JobModel(BaseModel):
                     "job_title": "Software Engineer",
                     "location": {
                         "country": "united kingdom",
-                        "state": "greater manchester"
+                        "state": "greater manchester",
+                        "division": "",
+                        "city": "manchester",
+                        "address": "",
+                        "zip_code": ""
                     },
                     "salary_amount": 7500.00,
                     "salary_duration": "monthly",
@@ -220,14 +227,14 @@ class JobModel(BaseModel):
 # PYDANTIC CLASS FOR COVER LETTER
 class CoverModel(BaseModel):
     title: str = Field(max_length=300)
-    letter: str | None = Field(max_length=1000)
+    description: str | None = Field(max_length=1000)
 
 
 # PYDANTIC CLASS FOR JOB APPLICATION
 class ApplicationModel(BaseModel):
     # application_id: str = Field(max_length=15)
     job_id: str = Field(max_length=50)
-    cover_letter: CoverModel
+    cover_letter: CoverModel | None
     
     model_config= {
         "json_schema_extra": {
@@ -236,7 +243,7 @@ class ApplicationModel(BaseModel):
                     "job_id": "enter job_id",
                     "cover_letter": {
                         "title": "Apply as an Software Engineer at Pepsico with 2 years working experience",
-                        "cover_letter": "I am writing to express my interest in the Software Engineer position at PepsiCo. I have been following PepsiCo's work for some time now, and I am very impressed with the company's commitment to innovation and its use of technology to improve the lives of its customers. I believe that my skills and experience would be a valuable asset to your team, and I am eager to contribute to PepsiCo's continued success. I have 6 years of experience in software engineering, with a focus on developing and maintaining web applications and mobile apps. I have a strong understanding of software development best practices, including object-oriented programming, design patterns, and unit testing. I am also proficient in a variety of programming languages and technologies, including Java, Python, JavaScript, React Native, and AWS."
+                        "description": "I am writing to express my interest in the Software Engineer position at PepsiCo. I have been following PepsiCo's work for some time now, and I am very impressed with the company's commitment to innovation and its use of technology to improve the lives of its customers. I believe that my skills and experience would be a valuable asset to your team, and I am eager to contribute to PepsiCo's continued success. I have 6 years of experience in software engineering, with a focus on developing and maintaining web applications and mobile apps. I have a strong understanding of software development best practices, including object-oriented programming, design patterns, and unit testing. I am also proficient in a variety of programming languages and technologies, including Java, Python, JavaScript, React Native, and AWS."
                     }
                 }
             ]

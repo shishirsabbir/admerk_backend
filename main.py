@@ -77,8 +77,7 @@ app = FastAPI(
     license_info = {
         "name": "MIT License",
         "url": "https://github.com/shishirsabbir/admerkcorp_api/blob/main/LICENSE"
-    },
-    root_path='/api/v2/'
+    }
 )
 
 
