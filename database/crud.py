@@ -84,6 +84,7 @@ def get_job_data_for_company(job_id: int, db_session):
         "overview": job_model.overview,
         "job_description": job_model.job_description,
         "category": job_model.category,
+        "sub_category": job_model.sub_category,
         "responsibility": job_model.responsibility,
         "required_skills": job_model.required_skills,
         "benefits": job_model.benefits,

@@ -35,7 +35,7 @@ async def get_all_companies(account: account_dependency, db: db_dependency):
 
 
 @router.get('/job', status_code=status.HTTP_200_OK)
-async def get_all_companies(account: account_dependency, db: db_dependency):
+async def get_all_jobs(account: account_dependency, db: db_dependency):
 
     if account.get('role') != 'admin':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not an Admin")
