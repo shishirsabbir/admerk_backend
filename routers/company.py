@@ -1,9 +1,9 @@
 # IMPORTING LOCAL PACKAGES
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Path
 from security.auth import account_dependency, hash_password, verify_password
 from database.crud import db_dependency, get_location, get_social, get_job_data_for_company
 from database.schemas import ChangePasswordRequest, JobModel
-from database.models import Account, Company, Job, Location, Application
+from database.models import Account, Company, Job, Location, Application, Cover
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -73,6 +73,28 @@ async def get_all_application(account: account_dependency, db: db_dependency):
         return None
 
     return [{"job_id": single_job, "application": db.query(Application).filter(Application.job_id == single_job).all()} for single_job in job_id_list if db.query(Application).filter(Application.job_id == single_job).all()]
+
+
+@router.get('/application/{application_id}', status_code=status.HTTP_200_OK)
+async def get_single_application(account: account_dependency, db: db_dependency, application_id: int = Path(gt=0)):
+
+    if account.get('role') != 'company':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
+
+    application_one = db.query(Application).filter(Application.id == application_id).first()
+    
+    if not application_one:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+    
+    cover_model = db.query(Cover).filter(Cover.id == application_one.cover_letter).first()
+
+    return {
+        "id": application_one.id,
+        "user_acc": application_one.user_acc,
+        "job_id": application_one.job_id,
+        "applied_on": application_one.applied_on,
+        "cover_letter": cover_model
+    }
     
 
 @router.put('/password', status_code=status.HTTP_204_NO_CONTENT)

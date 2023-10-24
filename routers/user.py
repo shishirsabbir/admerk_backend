@@ -1,5 +1,5 @@
 # IMPORTING LOCAL PACKAGES
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Path
 from security.auth import account_dependency, hash_password, verify_password
 from database.crud import db_dependency, get_location
 from database.schemas import ChangePasswordRequest, ApplicationModel
@@ -46,6 +46,26 @@ async def get_all_application(account: account_dependency, db: db_dependency):
     
     return db.query(Application).filter(Application.user_acc == account.get('username')).order_by(desc(Application.applied_on)).all()
     
+
+@router.get('/application/{application_id}', status_code=status.HTTP_200_OK)
+async def get_single_application(account: account_dependency, db: db_dependency, application_id: int = Path(gt=0)):
+    if account.get('role') != 'user':
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
+
+    application_one = db.query(Application).filter(Application.id == application_id).first()
+    
+    if not application_one:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
+    
+    cover_model = db.query(Cover).filter(Cover.id == application_one.cover_letter).first()
+
+    return {
+        "id": application_one.id,
+        "user_acc": application_one.user_acc,
+        "job_id": application_one.job_id,
+        "applied_on": application_one.applied_on,
+        "cover_letter": cover_model
+    }
 
 
 @router.put('/password', status_code=status.HTTP_204_NO_CONTENT)

@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from security import auth
-from routers import user, company, job
+from routers import user, company, job, public
 from administration import admin
 
 
@@ -54,6 +54,10 @@ tags_metadata = [
     {
         "name": "Job",
         "description": "API Endpoints for Job"
+    },
+    {
+        "name": "Public",
+        "description": "API Endpoints for Public Routes"
     },
     {
         "name": "Admin",
@@ -124,4 +128,5 @@ app.include_router(auth.router, tags=['Authentication'])
 app.include_router(user.router, tags=['User'])
 app.include_router(company.router, tags=['Company'])
 app.include_router(job.router, tags=['Job'])
+app.include_router(public.router, tags=['Public'])
 app.include_router(admin.router, tags=['Admin'])
