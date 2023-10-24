@@ -101,13 +101,11 @@ async def create_user_account(db: db_dependency, create_user_request: UserModel)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Email {create_user_request.email} is already in use.")
     
-    if create_user_request.location:
-        location_id = f'loc{datetime.now().strftime("%y%m%d%H%M%S")}'
-        location_model = Location(data_id=location_id, **create_user_request.location.model_dump())
-        
-        db.add(location_model)
-        db.commit()
-        db.refresh(location_model)
+    location_model = Location(**create_user_request.location.model_dump())
+    
+    db.add(location_model)
+    db.commit()
+    db.refresh(location_model)
 
     user_model = User(
         first_name=create_user_request.first_name.casefold(),
@@ -115,7 +113,7 @@ async def create_user_account(db: db_dependency, create_user_request: UserModel)
         username=create_user_request.username,
         email=create_user_request.email,
         birth_date=create_user_request.birth_date,
-        location=location_model.data_id,
+        location=location_model.id,
         is_refugee=create_user_request.is_refugee
     )
 
@@ -147,28 +145,22 @@ async def create_company_account(db: db_dependency, create_company_request: Comp
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Company c_mail/email {create_company_request.c_mail} is already in use.")
     
-    if create_company_request.location:
-        location_id = f'loc{datetime.now().strftime("%y%m%d%H%M%S")}'
-        location_model = Location(data_id=location_id, **create_company_request.location.model_dump())
-        
-        db.add(location_model)
-        db.commit()
-        db.refresh(location_model)
+    location_model = Location(**create_company_request.location.model_dump())
+    db.add(location_model)
+    db.commit()
+    db.refresh(location_model)
 
-    if create_company_request.social:
-        social_id = f'media{datetime.now().strftime("%y%m%d%H%M%S")}'
-        social_model = Social(data_id=social_id, **create_company_request.social.model_dump())
-
-        db.add(social_model)
-        db.commit()
-        db.refresh(social_model)
+    social_model = Social(**create_company_request.social.model_dump())
+    db.add(social_model)
+    db.commit()
+    db.refresh(social_model)
 
     company_model = Company(
         name=create_company_request.name.casefold(),
         c_name=create_company_request.c_name,
         c_mail=create_company_request.c_mail,
-        social=social_model.data_id,
-        location=location_model.data_id,
+        social=social_model.id,
+        location=location_model.id,
         website=create_company_request.website
     )
 

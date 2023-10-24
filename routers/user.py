@@ -1,9 +1,9 @@
 # IMPORTING LOCAL PACKAGES
 from fastapi import APIRouter, HTTPException, status
 from security.auth import account_dependency, hash_password, verify_password
-from database.crud import db_dependency, get_location, get_appliation_data
+from database.crud import db_dependency, get_location
 from database.schemas import ChangePasswordRequest, ApplicationModel
-from database.models import User, Account, Application
+from database.models import User, Account, Application, Cover
 from datetime import datetime
 from sqlalchemy import desc
 
@@ -18,14 +18,20 @@ router = APIRouter(
 @router.post('/application', status_code=status.HTTP_201_CREATED)
 async def apply_to_job(account: account_dependency, db: db_dependency, application_request: ApplicationModel):
 
+    cover_model = Cover(**application_request.cover_letter.model_dump())
+    db.add(cover_model)
+    db.commit()
+    db.refresh(cover_model)
+
     application_model = Application(
-        application_id=f'app{datetime.now().strftime("%y%m%d%H%M%S")}',
         user_acc=account.get('username'),
         job_id=application_request.job_id,
+        cover_letter=cover_model.id
     )
 
     db.add(application_model)
     db.commit()
+    db.refresh(application_model)
 
 
 @router.get('/application', status_code=status.HTTP_200_OK)
@@ -35,12 +41,11 @@ async def get_all_application(account: account_dependency, db: db_dependency):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
     application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
-    if len(application_list) == 0:
+    if len(application_list) < 1:
         return None
     
-    application_id_list_desc = [application_model.application_id for application_model in db.query(Application).filter(Application.user_acc == account.get('username')).order_by(desc(Application.applied_on)).all()]
+    return db.query(Application).filter(Application.user_acc == account.get('username')).order_by(desc(Application.applied_on)).all()
     
-    return [get_appliation_data(apply_id, db) for apply_id in application_id_list_desc]
 
 
 @router.put('/password', status_code=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,7 @@
 # IMPORTING LOCAL PACKAGES
 from fastapi import APIRouter, HTTPException, status
 from security.auth import account_dependency, hash_password, verify_password
-from database.crud import db_dependency, generate_job_name_id, get_location, get_social, get_job_name_id_list, get_job_data_for_company, get_appliation_data_by_job_name_id
+from database.crud import db_dependency, get_location, get_social, get_job_data_for_company
 from database.schemas import ChangePasswordRequest, JobModel
 from database.models import Account, Company, Job, Location, Application
 from datetime import datetime
@@ -32,29 +32,24 @@ async def create_new_job(account: account_dependency, db: db_dependency, create_
 
     if account.get('role') == 'user':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed to create job")
-    
-    job_name_id = generate_job_name_id(account.get('username'))
 
-    if create_job_request.location:
-        location_id = f'loc{datetime.now().strftime("%y%m%d%H%M%S")}'
-        location_model = Location(data_id=location_id, **create_job_request.location.model_dump())
-        
-        db.add(location_model)
-        db.commit()
-        db.refresh(location_model)
+    location_model = Location(**create_job_request.location.model_dump())
+    db.add(location_model)
+    db.commit()
+    db.refresh(location_model)
 
     job_model = Job(
-        name_id=job_name_id,
+        job_title=create_job_request.job_title,
         company=account.get('username'),
         job_type=create_job_request.job_type,
-        job_title=create_job_request.job_title,
-        location=location_model.data_id,
+        location=location_model.id,
         salary_amount=create_job_request.salary_amount,
         salary_duration=create_job_request.salary_duration,
-        experience=create_job_request.experience,
+        category=create_job_request.category,
+        sub_category=create_job_request.sub_category,
         overview=create_job_request.overview,
         job_description=create_job_request.job_description,
-        category=create_job_request.category,
+        experience=create_job_request.experience,
         responsibility=create_job_request.responsibility,
         required_skills=create_job_request.required_skills,
         benefits=create_job_request.benefits,
@@ -72,16 +67,12 @@ async def get_all_application(account: account_dependency, db: db_dependency):
     if account.get('role') != 'company':
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"{account.get('role')} is not allowed for this route")
 
-    job_name_list = [job.name_id for job in db.query(Job).filter(Job.company == account.get('username')).all()]
+    job_id_list = [job.id for job in db.query(Job).filter(Job.company == account.get('username')).all()]
 
-    if len(job_name_list) == 0:
+    if len(job_id_list) < 1:
         return None
-    
-    application_list = db.query(Application).filter(Application.user_acc == account.get('username')).all()
-    if len(application_list) == 0:
-        return None
-        
-    return [get_appliation_data_by_job_name_id(job_name_id, db) for job_name_id in job_name_list]
+
+    return [{"job_id": single_job, "application": db.query(Application).filter(Application.job_id == single_job).all()} for single_job in job_id_list if db.query(Application).filter(Application.job_id == single_job).all()]
     
 
 @router.put('/password', status_code=status.HTTP_204_NO_CONTENT)
